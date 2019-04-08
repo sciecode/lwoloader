@@ -6,7 +6,8 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
 		<style>
-		body,html { margin: 0; padding: 0; }
+		body { overflow: hidden; }
+		* { margin: 0; padding: 0; border: 0; }
 		canvas { background-color: tan; }
 		</style>
 
@@ -27,7 +28,7 @@
 			// LWOLoader expects texture files located inside "Images" folder in the same directory as model file.
 			// previous models should now correctly load textures.
 
-			//object = 'objects/LWO3/LinesPoints.lwo'; // Good
+			object = 'objects/LWO3/LinesPoints.lwo'; // Good
 			//object = 'objects/LWO3/morph.lwo'; // Good
 			//object = 'objects/LWO3/Cube00-Basic.lwo'; // Good
 			//object = 'objects/LWO3/Cube01-LayerName.lwo'; // Good, but it would be nice if there is only one layer and it is unnamed to make the Three.js object name the filename without appending _layer_0
@@ -43,7 +44,7 @@
 			//object = 'objects/LWO3/Points-Basic.lwo'; // Good
 			//object = 'objects/LWO3/SmoothingSphere.lwo'; // Good
 
-			object = 'objects/LWO3/ComplexTexturedMaterials.lwo'; // Looking for textures in the wrong place.  Lightwave BSDF material may be a better match for the newer MeshPhysicalMaterial which could map specularity to reflectivity and add in the clearCoat and clearCoatRoughness as well.
+			//object = 'objects/LWO3/ComplexTexturedMaterials.lwo'; // Looking for textures in the wrong place.  Lightwave BSDF material may be a better match for the newer MeshPhysicalMaterial which could map specularity to reflectivity and add in the clearCoat and clearCoatRoughness as well.
 			//object = 'objects/LWO3/Cube06-UVTextureMapStandardMaterial.lwo'; // Looking for textures in the wrong place
 			//object = 'objects/LWO3/Cube07-UVTextureMapPhongMaterial.lwo'; // Looking for textures in the wrong place
 			//object = 'objects/LWO3/Cube08-UVTextureMapStandardMaterial-Repeat.lwo'; // Looking for textures in the wrong place
@@ -64,9 +65,46 @@
 			//object = 'objects/LWO2/swingSet.lwo'; // LWO2 not loading
 			//object = 'objects/LWO2/sign.lwo'; // LWO2 not loading
 
-
 			var container, stats, controls;
 			var camera, scene, renderer, light, mesh;
+
+			var filenames = [
+				'LinesPoints.lwo',
+				'morph.lwo',
+				'DoubleSidedMaterials.lwo',
+				'Line-Basic.lwo',
+				'Morph-Test.lwo',
+				'Points-Basic.lwo',
+				'SmoothingSphere.lwo',
+				'ComplexTexturedMaterials.lwo',
+				'PhongMaterials01-Basic.lwo',
+				'StandardMaterials01-Basic.lwo',
+				'SmoothingThreshold.lwo',
+				'Materials.lwo',
+				'rocket.lwo',
+				'rocket_(UVmaps).lwo',
+				'multipleUVs.lwo',
+				'n-gon.lwo',
+				'UV-DiscontinuousTest.lwo',
+				'Cube00-Basic.lwo',
+				'Cube01-LayerName.lwo',
+				'Cube02-MultipleLayers.lwo',
+				'Cube03-ParentedLayers-PivotPoints.lwo',
+				'Cube04-MultipleStandardMaterials-LWPrincipledBSDF.lwo',
+				'Cube05-MultiplePhongMaterials-LWStandard.lwo',
+				'Cube06-UVTextureMapStandardMaterial.lwo',
+				'Cube07-UVTextureMapPhongMaterial.lwo',
+				'Cube08-UVTextureMapStandardMaterial-Repeat.lwo',
+				'Cube09-UVTextureMapPhongMaterial-Repeat.lwo',
+				'Cube10-Morphs.lwo',
+				'Cube11-NormalMap.lwo',
+				'Cube12-AbsoluteMorph.lwo',
+				'Cylinder01_UVMaps_Smoothing_MaterialTypes.lwo',
+			]
+
+			var guinames = { model: object.split( '/' ).pop().split( '\\' ).pop() }
+
+			var set = { object: object }
 
 			init();
 			animate();
@@ -76,9 +114,40 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
+				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.shadowMap.enabled = true;
+				container.appendChild( renderer.domElement );
+
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 2000 );
 				camera.position.set( -5, 4, 10 );
 
+				controls = new THREE.OrbitControls( camera, renderer.domElement );
+				controls.target.set( 0, 0, 0 );
+				controls.update();
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+				// stats
+				stats = new Stats();
+				stats = new Stats();
+				stats.showPanel( 0 );
+				document.body.appendChild( stats.domElement );
+				stats.domElement.style = "position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000";
+
+				var gui = new dat.GUI();
+				gui.add(guinames, 'model', filenames ).onChange( function(value) {
+					set.object = 'objects/LWO3/' + value;
+					console.clear();
+					load();
+				});
+
+				load();
+
+			}
+
+			function load() {
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xa0a0a0 );
 
@@ -125,8 +194,8 @@
 
 				// LWOs
 
-				var loader = new THREE.LWOLoader( manager );
-				loader.load( object, function ( object ) {
+				var loader = new THREE.LWOLoader( manager, { debugger: false } );
+				loader.load( set.object, function ( object ) {
 					object.meshes.forEach( function ( child ) {
 						scene.add( child );
 						child.position.set( 0, 0, 0 );
@@ -135,27 +204,6 @@
 
 
 				console.log(scene);
-
-				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.shadowMap.enabled = true;
-				container.appendChild( renderer.domElement );
-
-				controls = new THREE.OrbitControls( camera, renderer.domElement );
-				controls.target.set( 0, 0, 0 );
-				controls.update();
-
-
-				window.addEventListener( 'resize', onWindowResize, false );
-
-				// stats
-				stats = new Stats();
-				stats = new Stats();
-				stats.showPanel( 0 );
-				document.body.appendChild( stats.domElement );
-				stats.domElement.style = "position:fixed;top:0;right:0;cursor:pointer;opacity:0.9;z-index:10000";
-
 			}
 
 			function onWindowResize() {

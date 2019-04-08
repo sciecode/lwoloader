@@ -15,9 +15,10 @@ THREE.LWOLoader = ( function () {
 
 	var lwoTree;
 
-	function LWOLoader( manager ) {
+	function LWOLoader( manager, parameters ) {
 
 		this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
+    this.parameters = parameters || {};
 
 	}
 
@@ -73,7 +74,7 @@ THREE.LWOLoader = ( function () {
 
 		parse: function ( iffBuffer, path, modelName ) {
 
-			lwoTree = new IFFParser().parse( iffBuffer );
+			lwoTree = new IFFParser( this.parameters ).parse( iffBuffer );
 
 			// console.log( 'lwoTree', lwoTree );
 
@@ -1007,7 +1008,12 @@ THREE.LWOLoader = ( function () {
 	// CHUNKS and FORMS are collectively referred to as blocks
 
 	// The entire file is contained in one top level FORM
-	function IFFParser() {}
+	function IFFParser( parameters ) {
+
+		var _debugger = (parameters.debugger !== undefined) ? parameters.debugger : false;
+		this.debugger = new Debugger( _debugger );
+
+	}
 
 	IFFParser.prototype = {
 
@@ -1034,11 +1040,17 @@ THREE.LWOLoader = ( function () {
 			// parse blocks until end of file is reached
 			while ( ! this.reader.endOfFile() ) this.parseBlock();
 
+			this.debugger.offset = this.reader.offset;
+			this.debugger.closeForms();
+
 			return this.tree;
 
 		},
 
 		parseBlock() {
+
+			this.debugger.offset = this.reader.offset;
+			this.debugger.closeForms();
 
 			var blockID = this.reader.getIDTag();
 			var length = this.reader.getUint32(); // size of data in bytes
@@ -1049,6 +1061,8 @@ THREE.LWOLoader = ( function () {
 
 			}
 
+			this.debugger.dataOffset = this.reader.offset;
+			this.debugger.length = length;
 
 			// Data types may be found in either LWO2 OR LWO3 spec
 			switch ( blockID ) {
@@ -1420,6 +1434,12 @@ THREE.LWOLoader = ( function () {
 
 			}
 
+			if ( blockID != 'FORM' ) {
+				this.debugger.node = 1;
+				this.debugger.nodeID = blockID;
+				this.debugger.log();
+			}
+
 			if ( this.reader.offset >= this.currentFormEnd ) {
 
 				this.currentForm = this.parentForm;
@@ -1467,6 +1487,7 @@ THREE.LWOLoader = ( function () {
 				case 'CKEY':
 				case 'VMLA':
 				case 'VMLB':
+					this.debugger.skipped = true;
 					this.skipForm( length ); // not currently supported
 					break;
 
@@ -1486,6 +1507,8 @@ THREE.LWOLoader = ( function () {
 				case 'IIMG': // hold reference to image path
 				case 'TXTR':
 					// this.setupForm( type, length );
+					this.debugger.length = 4;
+					this.debugger.skipped = true;
 					break;
 
 				case 'IFAL': // imageFallof
@@ -1611,6 +1634,10 @@ THREE.LWOLoader = ( function () {
 					this.parseUnknownForm( type, length );
 
 			}
+
+			this.debugger.node = 0;
+			this.debugger.nodeID = type;
+			this.debugger.log();
 
 		},
 
@@ -1766,7 +1793,6 @@ THREE.LWOLoader = ( function () {
 
 				this.reader.skip( 24 );
 				this.currentForm.value = this.reader.getFloat64Array( 3 );
-
 
 			}
 
@@ -2418,6 +2444,80 @@ THREE.LWOLoader = ( function () {
 			a = a.split( '\0' );
 
 			return a.filter( Boolean ); // return array with any empty strings removed
+
+		}
+
+	};
+
+	// ************** DEBUGGER FUNCTIONS **************
+
+	function Debugger( active ) {
+
+		this.active = active;
+		this.depth = 0;
+		this.formList = [];
+
+	}
+
+	Debugger.prototype = {
+
+		constructor: Debugger,
+
+		log: function () {
+
+			if ( !this.active ) return;
+
+			var nodeType;
+
+			switch ( this.node ) {
+
+				case 0:
+					nodeType = "FORM";
+					break;
+
+				case 1:
+					nodeType = "CHK";
+					break;
+
+				case 2:
+					nodeType = "S-CHK";
+					break;
+
+			}
+
+			console.log(
+				"| ".repeat( this.depth ) +
+				nodeType,
+				this.nodeID,
+				"(" + (this.offset) + ") -> (" + (this.dataOffset + this.length) + ")",
+				((this.node == 0) ? " {" : ""),
+				((this.skipped) ? "SKIPPED }" : "")
+			);
+
+			if ( this.node == 0 && !this.skipped ) {
+
+				this.depth += 1;
+				this.formList.push( this.dataOffset + this.length );
+
+			}
+
+			this.skipped = false;
+
+		},
+
+		closeForms: function () {
+
+			if ( !this.active ) return;
+
+			for ( var i = this.formList.length-1; i >= 0; i-- ) {
+
+				if ( this.offset >= this.formList[i] ) {
+					this.depth -= 1;
+					console.log( "| ".repeat(this.depth) + "}" );
+					this.formList.splice(-1,1);
+				}
+
+			}
 
 		}
 
