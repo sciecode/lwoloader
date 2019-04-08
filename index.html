@@ -4,27 +4,30 @@
 		<title>LWOLoader Testing</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		
+
 		<style>
 		body,html { margin: 0; padding: 0; }
 		canvas { background-color: tan; }
 		</style>
-		
+
 		<!-- Three -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/103/three.min.js" integrity="sha256-T4lfPbatZLyNhpEgCvtmXmlhOUq0HZHkDX4cMlQWExA=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.11.0/Tween.min.js" integrity="sha256-n1uirR5DCXUiej7ySa+uRylgVCOTA6VYvzFL4xY3N78=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.min.js" integrity="sha256-eQxIuR9Z5Afu5SFVtoND4dHdHygFRhueTk7mwkINjro=" crossorigin="anonymous"></script>
-		<script src="https://unpkg.com/three@0.103.0/examples/js/loaders/LWOLoader.js" integrity="sha384-STRwO20ZdRltwbXEb5jKwy34O/UPp0FV7KMN5hWZcc5WvXi1FK8y00wmSsyOyNrk" crossorigin="anonymous"></script>
 		<script src="https://unpkg.com/three@0.103.0/examples/js/controls/OrbitControls.js" integrity="sha384-A8KifjKpxN1LUAWjByefDXyOrSL2gDQXe3TgnEL51gOuikIFuchQzDYWUNKdfE6A" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js" integrity="sha256-HJ7j+71YYw6Kcs8THwQV9lXmPOcR0eXlg7n8KRTZsyA=" crossorigin="anonymous"></script>
-		
+		<script src="src/LWOLoader.js" crossorigin="anonymous"></script>
+
 	</head>
 
 	<body>
 		<script>
 			var object;
-			
-			object = 'objects/LWO3/LinesPoints.lwo'; // Good
+
+			// LWOLoader expects texture files located inside "Images" folder in the same directory as model file.
+			// previous models should now correctly load textures.
+
+			//object = 'objects/LWO3/LinesPoints.lwo'; // Good
 			//object = 'objects/LWO3/morph.lwo'; // Good
 			//object = 'objects/LWO3/Cube00-Basic.lwo'; // Good
 			//object = 'objects/LWO3/Cube01-LayerName.lwo'; // Good, but it would be nice if there is only one layer and it is unnamed to make the Three.js object name the filename without appending _layer_0
@@ -40,22 +43,22 @@
 			//object = 'objects/LWO3/Points-Basic.lwo'; // Good
 			//object = 'objects/LWO3/SmoothingSphere.lwo'; // Good
 
-			//object = 'objects/LWO3-not-working/ComplexTexturedMaterials.lwo'; // Looking for textures in the wrong place.  Lightwave BSDF material may be a better match for the newer MeshPhysicalMaterial which could map specularity to reflectivity and add in the clearCoat and clearCoatRoughness as well.
-			//object = 'objects/LWO3-not-working/Cube06-UVTextureMapStandardMaterial.lwo'; // Looking for textures in the wrong place
-			//object = 'objects/LWO3-not-working/Cube07-UVTextureMapPhongMaterial.lwo'; // Looking for textures in the wrong place
-			//object = 'objects/LWO3-not-working/Cube08-UVTextureMapStandardMaterial-Repeat.lwo'; // Looking for textures in the wrong place
-			//object = 'objects/LWO3-not-working/Cube09-UVTextureMapPhongMaterial-Repeat.lwo'; // Looking for textures in the wrong place
-			//object = 'objects/LWO3-not-working/Cube11-NormalMap.lwo'; // Looking for textures in the wrong place, Discontinuious UV map not supported
-			//object = 'objects/LWO3-not-working/Cylinder01_UVMaps_Smoothing_MaterialTypes.lwo'; // Looking for textures in the wrong place, n-gon geometry (greater than 4 point polys) doesn't load
-			//object = 'objects/LWO3-not-working/PhongMaterials01-Basic.lwo'; // Looking for textures in the wrong place
-			//object = 'objects/LWO3-not-working/StandardMaterials01-Basic.lwo'; // Looking for textures in the wrong place
-			//object = 'objects/LWO3-not-working/SmoothingThreshold.lwo'; // Smoothing Threshold not taken into account
-			//object = 'objects/LWO3-not-working/Materials.lwo'; // Looking for textures in the wrong place
-			//object = 'objects/LWO3-not-working/rocket.lwo'; // Looking for textures in the wrong place
-			//object = 'objects/LWO3-not-working/multipleUVs.lwo'; // Multiple UVs not recognized. Looking for textures in the wrong place
-			//object = 'objects/LWO3-not-working/n-gon.lwo'; // n-gon geometry (greater than 4 point polys) doesn't load
-			//object = 'objects/LWO3-not-working/rocket_(UVmaps).lwo'; // Discontinuous UV not supported. Looking for textures in the wrong place
-			//object = 'objects/LWO3-not-working/UV-DiscontinuousTest.lwo'; // Discontinuous UV not supported. Looking for textures in the wrong place
+			object = 'objects/LWO3/ComplexTexturedMaterials.lwo'; // Looking for textures in the wrong place.  Lightwave BSDF material may be a better match for the newer MeshPhysicalMaterial which could map specularity to reflectivity and add in the clearCoat and clearCoatRoughness as well.
+			//object = 'objects/LWO3/Cube06-UVTextureMapStandardMaterial.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3/Cube07-UVTextureMapPhongMaterial.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3/Cube08-UVTextureMapStandardMaterial-Repeat.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3/Cube09-UVTextureMapPhongMaterial-Repeat.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3/Cube11-NormalMap.lwo'; // Looking for textures in the wrong place, Discontinuious UV map not supported
+			//object = 'objects/LWO3/Cylinder01_UVMaps_Smoothing_MaterialTypes.lwo'; // Looking for textures in the wrong place, n-gon geometry (greater than 4 point polys) doesn't load
+			//object = 'objects/LWO3/PhongMaterials01-Basic.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3/StandardMaterials01-Basic.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3/SmoothingThreshold.lwo'; // Smoothing Threshold not taken into account
+			//object = 'objects/LWO3/Materials.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3/rocket.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3/multipleUVs.lwo'; // Multiple UVs not recognized. Looking for textures in the wrong place
+			//object = 'objects/LWO3/n-gon.lwo'; // n-gon geometry (greater than 4 point polys) doesn't load
+			//object = 'objects/LWO3/rocket_(UVmaps).lwo'; // Discontinuous UV not supported. Looking for textures in the wrong place
+			//object = 'objects/LWO3/UV-DiscontinuousTest.lwo'; // Discontinuous UV not supported. Looking for textures in the wrong place
 
 			//object = 'objects/LWO2/cube.lwo'; // LWO2 not loading
 			//object = 'objects/LWO2/swingSet.lwo'; // LWO2 not loading
@@ -73,7 +76,7 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 200 );
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 2000 );
 				camera.position.set( -5, 4, 10 );
 
 				scene = new THREE.Scene();
@@ -118,8 +121,8 @@
 					console.log( 'Loading complete!');
 					console.log(scene);
 				};
-				
-				
+
+
 				// LWOs
 
 				var loader = new THREE.LWOLoader( manager );
@@ -129,8 +132,8 @@
 						child.position.set( 0, 0, 0 );
 					} )
 				} );
-				
-				
+
+
 				console.log(scene);
 
 				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
