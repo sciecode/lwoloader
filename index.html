@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>LWOLoader Testing</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		
+		<style>
+		body,html { margin: 0; padding: 0; }
+		canvas { background-color: tan; }
+		</style>
+		
+		<!-- Three -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/103/three.min.js" integrity="sha256-T4lfPbatZLyNhpEgCvtmXmlhOUq0HZHkDX4cMlQWExA=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.11.0/Tween.min.js" integrity="sha256-n1uirR5DCXUiej7ySa+uRylgVCOTA6VYvzFL4xY3N78=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.min.js" integrity="sha256-eQxIuR9Z5Afu5SFVtoND4dHdHygFRhueTk7mwkINjro=" crossorigin="anonymous"></script>
+		<script src="https://unpkg.com/three@0.103.0/examples/js/loaders/LWOLoader.js" integrity="sha384-STRwO20ZdRltwbXEb5jKwy34O/UPp0FV7KMN5hWZcc5WvXi1FK8y00wmSsyOyNrk" crossorigin="anonymous"></script>
+		<script src="https://unpkg.com/three@0.103.0/examples/js/controls/OrbitControls.js" integrity="sha384-A8KifjKpxN1LUAWjByefDXyOrSL2gDQXe3TgnEL51gOuikIFuchQzDYWUNKdfE6A" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js" integrity="sha256-HJ7j+71YYw6Kcs8THwQV9lXmPOcR0eXlg7n8KRTZsyA=" crossorigin="anonymous"></script>
+		
+	</head>
+
+	<body>
+		<script>
+			var object;
+			
+			object = 'objects/LWO3/LinesPoints.lwo'; // Good
+			//object = 'objects/LWO3/morph.lwo'; // Good
+			//object = 'objects/LWO3/Cube00-Basic.lwo'; // Good
+			//object = 'objects/LWO3/Cube01-LayerName.lwo'; // Good, but it would be nice if there is only one layer and it is unnamed to make the Three.js object name the filename without appending _layer_0
+			//object = 'objects/LWO3/Cube02-MultipleLayers.lwo'; // Good
+			//object = 'objects/LWO3/Cube03-ParentedLayers-PivotPoints.lwo'; // Good
+			//object = 'objects/LWO3/Cube04-MultipleStandardMaterials-LWPrincipledBSDF.lwo'; // Good
+			//object = 'objects/LWO3/Cube05-MultiplePhongMaterials-LWStandard.lwo'; // Good
+			//object = 'objects/LWO3/Cube10-Morphs.lwo'; // Good
+			//object = 'objects/LWO3/Cube12-AbsoluteMorph.lwo'; // Rarely used in LW
+			//object = 'objects/LWO3/DoubleSidedMaterials.lwo'; // Good
+			//object = 'objects/LWO3/Line-Basic.lwo'; // Good
+			//object = 'objects/LWO3/Morph-Test.lwo'; // Good
+			//object = 'objects/LWO3/Points-Basic.lwo'; // Good
+			//object = 'objects/LWO3/SmoothingSphere.lwo'; // Good
+
+			//object = 'objects/LWO3-not-working/ComplexTexturedMaterials.lwo'; // Looking for textures in the wrong place.  Lightwave BSDF material may be a better match for the newer MeshPhysicalMaterial which could map specularity to reflectivity and add in the clearCoat and clearCoatRoughness as well.
+			//object = 'objects/LWO3-not-working/Cube06-UVTextureMapStandardMaterial.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3-not-working/Cube07-UVTextureMapPhongMaterial.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3-not-working/Cube08-UVTextureMapStandardMaterial-Repeat.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3-not-working/Cube09-UVTextureMapPhongMaterial-Repeat.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3-not-working/Cube11-NormalMap.lwo'; // Looking for textures in the wrong place, Discontinuious UV map not supported
+			//object = 'objects/LWO3-not-working/Cylinder01_UVMaps_Smoothing_MaterialTypes.lwo'; // Looking for textures in the wrong place, n-gon geometry (greater than 4 point polys) doesn't load
+			//object = 'objects/LWO3-not-working/PhongMaterials01-Basic.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3-not-working/StandardMaterials01-Basic.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3-not-working/SmoothingThreshold.lwo'; // Smoothing Threshold not taken into account
+			//object = 'objects/LWO3-not-working/Materials.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3-not-working/rocket.lwo'; // Looking for textures in the wrong place
+			//object = 'objects/LWO3-not-working/multipleUVs.lwo'; // Multiple UVs not recognized. Looking for textures in the wrong place
+			//object = 'objects/LWO3-not-working/n-gon.lwo'; // n-gon geometry (greater than 4 point polys) doesn't load
+			//object = 'objects/LWO3-not-working/rocket_(UVmaps).lwo'; // Discontinuous UV not supported. Looking for textures in the wrong place
+			//object = 'objects/LWO3-not-working/UV-DiscontinuousTest.lwo'; // Discontinuous UV not supported. Looking for textures in the wrong place
+
+			//object = 'objects/LWO2/cube.lwo'; // LWO2 not loading
+			//object = 'objects/LWO2/swingSet.lwo'; // LWO2 not loading
+			//object = 'objects/LWO2/sign.lwo'; // LWO2 not loading
+
+
+			var container, stats, controls;
+			var camera, scene, renderer, light, mesh;
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 200 );
+				camera.position.set( -5, 4, 10 );
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0xa0a0a0 );
+
+				scene.add( new THREE.AmbientLight( 0xaaaaaa, 0.2 ) );
+
+				light = new THREE.DirectionalLight( 0xffffff, 0.75 );
+				light.position.set( 0, 200, 100 );
+				light.castShadow = true;
+				light.shadow.camera.top = 180;
+				light.shadow.camera.bottom = -100;
+				light.shadow.camera.left = -120;
+				light.shadow.camera.right = 120;
+				scene.add( light );
+
+				light = new THREE.DirectionalLight( 0xffffff, 0.5 );
+				light.position.set( -100, 200, -100 );
+				scene.add( light );
+
+				light = new THREE.DirectionalLight( 0xffffff, 0.5 );
+				light.position.set( 100, -200, 100 );
+				scene.add( light );
+
+				light = new THREE.DirectionalLight( 0xffffff, 0.5 );
+				light.position.set( -100, -100, 100 );
+				scene.add( light );
+
+				var grid = new THREE.GridHelper( 2000, 20, 0x000000, 0x000000 );
+				grid.material.opacity = 0.2;
+				grid.material.transparent = true;
+				scene.add( grid );
+
+				var manager = new THREE.LoadingManager();
+				manager.onStart = function ( url, itemsLoaded, itemsTotal ) {
+					console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+				};
+				manager.onProgress = function ( item, loaded, total ) {
+					console.log(item + ': (' + loaded + ' of ' + total + ')' );
+				};
+				manager.onLoad = function ( ) {
+					console.log( 'Loading complete!');
+					console.log(scene);
+				};
+				
+				
+				// LWOs
+
+				var loader = new THREE.LWOLoader( manager );
+				loader.load( object, function ( object ) {
+					object.meshes.forEach( function ( child ) {
+						scene.add( child );
+						child.position.set( 0, 0, 0 );
+					} )
+				} );
+				
+				
+				console.log(scene);
+
+				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.shadowMap.enabled = true;
+				container.appendChild( renderer.domElement );
+
+				controls = new THREE.OrbitControls( camera, renderer.domElement );
+				controls.target.set( 0, 0, 0 );
+				controls.update();
+
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+				// stats
+				stats = new Stats();
+				stats = new Stats();
+				stats.showPanel( 0 );
+				document.body.appendChild( stats.domElement );
+				stats.domElement.style = "position:fixed;top:0;right:0;cursor:pointer;opacity:0.9;z-index:10000";
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				renderer.render( scene, camera );
+
+				stats.update();
+
+			}
+
+		</script>
+
+	</body>
+</html>
