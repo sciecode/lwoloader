@@ -1,15 +1,24 @@
+/**
+ * @author Lewy Blue https://github.com/looeee
+ *
+ * Load files in LWO3 and LWO2 format
+ *
+ * LWO3 format specification:
+ * 	http://static.lightwave3d.com/sdk/2018/html/filefmts/lwo3.html
+ *
+ * LWO2 format specification:
+ * 	http://static.lightwave3d.com/sdk/2018/html/filefmts/lwo2.html
+ *
+ */
+
 THREE.LWOLoader = ( function () {
 
 	var lwoTree;
 
-	function LWOLoader( manager, parameters ) {
+	function LWOLoader( manager ) {
 
 		this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
-
-		parameters = parameters || {};
-
-		this.resourcePath = ( parameters.resourcePath !== undefined ) ? parameters.resourcePath : undefined;
-    this.debug = ( parameters.debug !== undefined ) ? parameters.debug : false;
+    this.debug = false;
 
 	}
 
@@ -23,7 +32,10 @@ THREE.LWOLoader = ( function () {
 
 			var self = this;
 
-			var path = ( self.path === undefined ) ? extractParentUrl( url, 'Objects' ) : self.path;
+			var baseUrl = THREE.LoaderUtils.extractUrlBase( url );
+			var subDir = baseUrl.substring(0, baseUrl.length - 1).split( '/' ).pop().split( '\\' ).pop();
+			console.log( subDir );
+			var path = ( self.path === undefined ) ? THREE.LoaderUtils.extractUrlBase( url ) : self.path;
 
 			// give the mesh a default name based on the filename
 			var modelName = url.split( path ).pop().split( '.' )[ 0 ];
@@ -660,18 +672,18 @@ THREE.LWOLoader = ( function () {
 
 			if ( ! path ) return null;
 
-			var texture;
+			return this.textureLoader.load( this.cleanPath( path ) );
 
-			texture = this.textureLoader.load(
-				path,
-				undefined,
-				undefined,
-				function() {
-					console.warn( 'LWOLoader: non-standard resource hierarchy. Use \`resourcePath\` parameter to specify root content directory.' );
-				}
-			 );
+		},
 
-			return texture;
+		// Lightwave expects textures to be in folder called Images relative
+		// to the model
+		// Otherwise, the full absolute path is stored: D://some_directory/textures/bumpMap.png
+		// In this case, we'll strip out everything and load 'bumpMap.png' from the same directory as the model
+		cleanPath( path ) {
+
+			if ( path.indexOf( 'Images' ) === 0 ) return './' + path;
+			return path.split( '/' ).pop().split( '\\' ).pop();
 
 		},
 
@@ -1902,8 +1914,6 @@ THREE.LWOLoader = ( function () {
 				index: this.reader.getUint32(),
 				fileName: ""
 			};
-
-			var readed = 4;
 			// seach STIL block
 			while ( true ) {
 
@@ -1915,7 +1925,6 @@ THREE.LWOLoader = ( function () {
 					break;
 
 				}
-				readed += 4 + n_length;
 				if ( n_length >= length ) {
 
 					break;
@@ -2202,14 +2211,10 @@ THREE.LWOLoader = ( function () {
 			// array holds polygon index followed by material index
 			this.currentLayer.geometry.materialIndices = [];
 
-			var initialMatIndex;
-
 			while ( this.reader.offset < finalOffset ) {
 
 				var polygonIndex = this.reader.getVariableLengthIndex();
 				var materialIndex = this.reader.getUint16();
-
-				if ( ! initialMatIndex ) initialMatIndex = materialIndex; // set up first mat index
 
 				this.currentLayer.geometry.materialIndices.push( polygonIndex, materialIndex );
 
@@ -2535,15 +2540,6 @@ THREE.LWOLoader = ( function () {
 
 		console.log( THREE.LoaderUtils.decodeText( new Uint8Array( buffer, from, to ) ) );
 
-	}
-
-	function extractParentUrl( url, dir ) {
-
-		var index = url.indexOf( dir );
-
-		if ( index === -1 ) return './';
-
-		return url.substr( 0, index );
 	}
 
 	return LWOLoader;
