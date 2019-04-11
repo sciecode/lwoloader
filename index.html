@@ -5,19 +5,24 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
-		<style>
-		body { overflow: hidden; }
-		* { margin: 0; padding: 0; border: 0; }
-		canvas { background-color: tan; }
-		</style>
-
 		<!-- Three -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/103/three.min.js" integrity="sha256-T4lfPbatZLyNhpEgCvtmXmlhOUq0HZHkDX4cMlQWExA=" crossorigin="anonymous"></script>
+		<script src="https://threejs.org/build/three.js" crossorigin="anonymous"></script>
+		<script src="https://threejs.org/examples/js/controls/OrbitControls.js" crossorigin="anonymous"></script>
+		<script src="src/LWOLoader.js" crossorigin="anonymous"></script>
+
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.11.0/Tween.min.js" integrity="sha256-n1uirR5DCXUiej7ySa+uRylgVCOTA6VYvzFL4xY3N78=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.min.js" integrity="sha256-eQxIuR9Z5Afu5SFVtoND4dHdHygFRhueTk7mwkINjro=" crossorigin="anonymous"></script>
-		<script src="https://unpkg.com/three@0.103.0/examples/js/controls/OrbitControls.js" integrity="sha384-A8KifjKpxN1LUAWjByefDXyOrSL2gDQXe3TgnEL51gOuikIFuchQzDYWUNKdfE6A" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js" integrity="sha256-HJ7j+71YYw6Kcs8THwQV9lXmPOcR0eXlg7n8KRTZsyA=" crossorigin="anonymous"></script>
-		<script src="src/LWOLoader.js" crossorigin="anonymous"></script>
+
+
+		<style>
+			* { margin: 0; padding: 0; border: 0; }
+			body { overflow: hidden; }
+			canvas { background-color: tan; }
+			select { max-width: 100%; }
+			.dg .property-name { width: 20%; }
+			.dg .c { width: 80%; }
+		</style>
 
 	</head>
 
@@ -28,83 +33,82 @@
 			// LWOLoader expects texture files located inside "Images" folder in the same directory as model file.
 			// previous models should now correctly load textures.
 
-			// object = 'Objects/LWO3/LinesPoints.lwo'; // Good
-			//object = 'Objects/LWO3/morph.lwo'; // Good
-			//object = 'Objects/LWO3/Cube00-Basic.lwo'; // Good
-			//object = 'Objects/LWO3/Cube01-LayerName.lwo'; // Good, but it would be nice if there is only one layer and it is unnamed to make the Three.js object name the filename without appending _layer_0
-			//object = 'Objects/LWO3/Cube02-MultipleLayers.lwo'; // Good
-			//object = 'Objects/LWO3/Cube03-ParentedLayers-PivotPoints.lwo'; // Good
-			//object = 'Objects/LWO3/Cube04-MultipleStandardMaterials-LWPrincipledBSDF.lwo'; // Good
-			//object = 'Objects/LWO3/Cube05-MultiplePhongMaterials-LWStandard.lwo'; // Good
-			//object = 'Objects/LWO3/Cube10-Morphs.lwo'; // Good
-			//object = 'Objects/LWO3/Cube12-AbsoluteMorph.lwo'; // Rarely used in LW
-			//object = 'Objects/LWO3/DoubleSidedMaterials.lwo'; // Good
-			//object = 'Objects/LWO3/Line-Basic.lwo'; // Good
-			//object = 'Objects/LWO3/Morph-Test.lwo'; // Good
-			//object = 'Objects/LWO3/Points-Basic.lwo'; // Good
-			//object = 'Objects/LWO3/SmoothingSphere.lwo'; // Good
+			//object = '3/LinesPoints.lwo'; // Good
+			//object = '3/morph.lwo'; // Good
+			//object = '3/Cube00-Basic.lwo'; // Good
+			//object = '3/Cube01-LayerName.lwo'; // Good, but it would be nice if there is only one layer and it is unnamed to make the Three.js object name the filename without appending _layer_0
+			//object = '3/Cube02-MultipleLayers.lwo'; // Good
+			//object = '3/Cube03-ParentedLayers-PivotPoints.lwo'; // Good
+			//object = '3/Cube04-MultipleStandardMaterials.lwo'; // Good
+			//object = '3/Cube05-MultiplePhongMaterials.lwo'; // Good
+			//object = '3/Cube10-Morphs.lwo'; // Good
+			//object = '3/Cube12-AbsoluteMorph.lwo'; // Rarely used in LW
+			//object = '3/DoubleSidedMaterials.lwo'; // Good
+			//object = '3/Line-Basic.lwo'; // Good
+			//object = '3/Morph-Test.lwo'; // Good
+			//object = '3/Points-Basic.lwo'; // Good
+			//object = '3/SmoothingSphere.lwo'; // Good
 
-			//object = 'Objects/LWO3/ComplexTexturedMaterials.lwo'; // Looking for textures in the wrong place.  Lightwave BSDF material may be a better match for the newer MeshPhysicalMaterial which could map specularity to reflectivity and add in the clearCoat and clearCoatRoughness as well.
-			//object = 'Objects/LWO3/Cube06-UVTextureMapStandardMaterial.lwo'; // Looking for textures in the wrong place
-			//object = 'Objects/LWO3/Cube07-UVTextureMapPhongMaterial.lwo'; // Looking for textures in the wrong place
-			//object = 'Objects/LWO3/Cube08-UVTextureMapStandardMaterial-Repeat.lwo'; // Looking for textures in the wrong place
-			//object = 'Objects/LWO3/Cube09-UVTextureMapPhongMaterial-Repeat.lwo'; // Looking for textures in the wrong place
-			//object = 'Objects/LWO3/Cube11-NormalMap.lwo'; // Looking for textures in the wrong place, Discontinuious UV map not supported
-			//object = 'Objects/LWO3/Cylinder01_UVMaps_Smoothing_MaterialTypes.lwo'; // Looking for textures in the wrong place, n-gon geometry (greater than 4 point polys) doesn't load
-			//object = 'Objects/LWO3/PhongMaterials01-Basic.lwo'; // Looking for textures in the wrong place
-			//object = 'Objects/LWO3/StandardMaterials01-Basic.lwo'; // Looking for textures in the wrong place
-			//object = 'Objects/LWO3/SmoothingThreshold.lwo'; // Smoothing Threshold not taken into account
-			object = 'Objects/LWO3/Materials.lwo'; // Looking for textures in the wrong place
-			//object = 'Objects/LWO3/rocket.lwo'; // Looking for textures in the wrong place
-			//object = 'Objects/LWO3/multipleUVs.lwo'; // Multiple UVs not recognized. Looking for textures in the wrong place
-			//object = 'Objects/LWO3/n-gon.lwo'; // n-gon geometry (greater than 4 point polys) doesn't load
-			//object = 'Objects/LWO3/rocket_(UVmaps).lwo'; // Discontinuous UV not supported. Looking for textures in the wrong place
-			//object = 'Objects/LWO3/UV-DiscontinuousTest.lwo'; // Discontinuous UV not supported. Looking for textures in the wrong place
+			//object = '3/ComplexTexturedMaterials.lwo'; // Looking for textures in the wrong place.  Lightwave BSDF material may be a better match for the newer MeshPhysicalMaterial which could map specularity to reflectivity and add in the clearCoat and clearCoatRoughness as well.
+			//object = '3/Cube06-UVTextureMapStandard.lwo'; // Looking for textures in the wrong place
+			//object = '3/Cube07-UVTextureMapPhong.lwo'; // Looking for textures in the wrong place
+			//object = '3/Cube08-UVTextureMapStandard-Repeat.lwo'; // Looking for textures in the wrong place
+			//object = '3/Cube09-UVTextureMapPhong-Repeat.lwo'; // Looking for textures in the wrong place
+			//object = '3/Cube11-NormalMap.lwo'; // Looking for textures in the wrong place, Discontinuious UV map not supported
+			//object = '3/Cylinder01_UVMaps_Smoothing.lwo'; // Looking for textures in the wrong place, n-gon geometry (greater than 4 point polys) doesn't load
+			//object = '3/PhongMaterials01-Basic.lwo'; // Looking for textures in the wrong place
+			//object = '3/StandardMaterials01-Basic.lwo'; // Looking for textures in the wrong place
+			//object = '3/SmoothingThreshold.lwo'; // Smoothing Threshold not taken into account
+			object = '3/Materials.lwo'; // Looking for textures in the wrong place
+			//object = '3/rocket.lwo'; // Looking for textures in the wrong place
+			//object = '3/multipleUVs.lwo'; // Multiple UVs not recognized. Looking for textures in the wrong place
+			//object = '3/n-gon.lwo'; // n-gon geometry (greater than 4 point polys) doesn't load
+			//object = '3/rocket_(UVmaps).lwo'; // Discontinuous UV not supported. Looking for textures in the wrong place
+			//object = '3/UV-DiscontinuousTest.lwo'; // Discontinuous UV not supported. Looking for textures in the wrong place
 
-			//object = 'Objects/LWO2/cube.lwo'; // LWO2 not loading
-			//object = 'Objects/LWO2/swingSet.lwo'; // LWO2 not loading
-			//object = 'Objects/LWO2/sign.lwo'; // LWO2 not loading
+			//object = '2/cube.lwo'; // LWO2 not loading
+			//object = '2/swingSet.lwo'; // LWO2 not loading
+			//object = '2/sign.lwo';  // LWO2 not loading
 
 			var container, stats, controls;
 			var camera, scene, renderer, light, mesh;
 
 			var filenames = [
-				'LinesPoints.lwo',
-				'morph.lwo',
-				'DoubleSidedMaterials.lwo',
-				'Line-Basic.lwo',
-				'Morph-Test.lwo',
-				'Points-Basic.lwo',
-				'SmoothingSphere.lwo',
-				'ComplexTexturedMaterials.lwo',
-				'PhongMaterials01-Basic.lwo',
-				'StandardMaterials01-Basic.lwo',
-				'SmoothingThreshold.lwo',
-				'Materials.lwo',
-				'rocket.lwo',
-				'rocket_(UVmaps).lwo',
-				'multipleUVs.lwo',
-				'n-gon.lwo',
-				'UV-DiscontinuousTest.lwo',
-				'Cube00-Basic.lwo',
-				'Cube01-LayerName.lwo',
-				'Cube02-MultipleLayers.lwo',
-				'Cube03-ParentedLayers-PivotPoints.lwo',
-				'Cube04-MultipleStandardMaterials-LWPrincipledBSDF.lwo',
-				'Cube05-MultiplePhongMaterials-LWStandard.lwo',
-				'Cube06-UVTextureMapStandardMaterial.lwo',
-				'Cube07-UVTextureMapPhongMaterial.lwo',
-				'Cube08-UVTextureMapStandardMaterial-Repeat.lwo',
-				'Cube09-UVTextureMapPhongMaterial-Repeat.lwo',
-				'Cube10-Morphs.lwo',
-				'Cube11-NormalMap.lwo',
-				'Cube12-AbsoluteMorph.lwo',
-				'Cylinder01_UVMaps_Smoothing_MaterialTypes.lwo',
+				'3/Line-Basic.lwo',
+				'3/Points-Basic.lwo',
+				'3/LinesPoints.lwo',
+				'3/morph.lwo',
+				'3/Morph-Test.lwo',
+				'3/SmoothingSphere.lwo',
+				'3/SmoothingThreshold.lwo',
+				'3/Materials.lwo',
+				'3/DoubleSidedMaterials.lwo',
+				'3/PhongMaterials01-Basic.lwo',
+				'3/StandardMaterials01-Basic.lwo',
+				'3/ComplexTexturedMaterials.lwo',
+				'3/rocket.lwo',
+				'3/rocket_(UVmaps).lwo',
+				'3/multipleUVs.lwo',
+				'3/UV-DiscontinuousTest.lwo',
+				'3/Cube00-Basic.lwo',
+				'3/Cube01-LayerName.lwo',
+				'3/Cube02-MultipleLayers.lwo',
+				'3/Cube03-ParentedLayers-PivotPoints.lwo',
+				'3/Cube04-MultipleStandard.lwo',
+				'3/Cube05-MultiplePhong.lwo',
+				'3/Cube06-UVTextureMapStandard.lwo',
+				'3/Cube07-UVTextureMapPhong.lwo',
+				'3/Cube08-UVTextureMapStandard-Repeat.lwo',
+				'3/Cube09-UVTextureMapPhong-Repeat.lwo',
+				'3/Cube10-Morphs.lwo',
+				'3/Cube11-NormalMap.lwo',
+				'3/Cube12-AbsoluteMorph.lwo',
+				'3/Cylinder01_UVMaps_Smoothing.lwo',
+				'3/n-gon.lwo',
+				'2/cube.lwo',
+				'2/swingSet.lwo',
+				'2/sign.lwo'
 			]
-
-			var guinames = { model: object.split( '/' ).pop().split( '\\' ).pop() }
-
-			var set = { object: object }
 
 			init();
 			animate();
@@ -136,9 +140,12 @@
 				document.body.appendChild( stats.domElement );
 				stats.domElement.style = "position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000";
 
+				var guinames = { model: object };
+				object = 'models/Objects/LWO' + object;
+
 				var gui = new dat.GUI();
 				gui.add(guinames, 'model', filenames ).onChange( function(value) {
-					set.object = 'Objects/LWO3/' + value;
+					object = 'models/Objects/LWO' + value;
 					console.clear();
 					load();
 				});
@@ -193,9 +200,8 @@
 
 
 				// LWOs
-
-				var loader = new THREE.LWOLoader( manager );
-				loader.load( set.object, function ( object ) {
+				var loader = new THREE.LWOLoader( manager, { debug: false } );
+				loader.load( object, function ( object ) {
 					object.meshes.forEach( function ( child ) {
 						scene.add( child );
 						child.position.set( 0, 0, 0 );
