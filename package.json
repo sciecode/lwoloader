@@ -1,6 +1,6 @@
 {
   "name": "lwoloader-test-models",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "threejs LWOLoader",
   "main": "build/LWOLoader.js",
   "repository": "threejs/lwoloader-test-models",
