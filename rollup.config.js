@@ -1,8 +1,11 @@
 const header =
 `/**
- * @author Lewy Blue https://github.com/looeee
+ * @version 1.0.0
  *
- * Load files in LWO3 and LWO2 format
+ * @author Lewy Blue https://github.com/looeee
+ * @author Guilherme Avila https://github/sciecode
+ *
+ * @desc Load files in LWO3 and LWO2 format on Three.js
  *
  * LWO3 format specification:
  * 	http://static.lightwave3d.com/sdk/2018/html/filefmts/lwo3.html
@@ -10,7 +13,7 @@ const header =
  * LWO2 format specification:
  * 	http://static.lightwave3d.com/sdk/2018/html/filefmts/lwo2.html
  *
- * Development and Test repository:
+ * Development and test repository:
  *	https://github.com/threejs/lwoloader-test-models
  *
  **/
@@ -19,12 +22,12 @@ const header =
 
 export default {
 	input: 'src/Loader.js',
-	output: [
+	output:
 		{
-			format: 'esm',
-			file: 'build/LWOLoader.js',
+			format: 'iife',
+			name: 'THREE.LWOLoader',
+			file: 'build/js/LWOLoader.js',
 			indent: '\t',
 			banner: header
 		}
-	]
 };
