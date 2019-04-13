@@ -1,0 +1,18 @@
+{
+  "name": "lwoloader-test-models",
+  "version": "1.0.0",
+  "description": "threejs LWOLoader",
+  "main": "build/LWOLoader.js",
+  "repository": "threejs/lwoloader-test-models",
+  "scripts": {
+    "build": "rollup -c\"",
+    "test": "concurrently --names \"ROLLUP,HTTP\" -c \"bgBlue.bold,bgGreen.bold\" \"rollup -c\" \"http-server -c-1 -p 8080\""
+  },
+  "author": "Threejs",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^4.1.0",
+    "http-server": "^0.11.1",
+    "rollup": "^1.4.0"
+  }
+}
