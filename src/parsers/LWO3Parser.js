@@ -9,7 +9,7 @@ LWO3Parser.prototype = {
 
 	constructor: LWO3Parser,
 
-	parseBlock() {
+	parseBlock: function() {
 
 		this.IFF.debugger.offset = this.IFF.reader.offset;
 		this.IFF.debugger.closeForms();
@@ -27,7 +27,7 @@ LWO3Parser.prototype = {
 				this.IFF.parseForm( length );
 				break;
 
-				// SKIPPED CHUNKS
+			// SKIPPED CHUNKS
 
 			// MISC skipped
 			case 'ICON': // Thumbnail Icon Image
@@ -94,6 +94,7 @@ LWO3Parser.prototype = {
 			case 'NSRV':
 			case 'NCRD':
 			case 'NMOD':
+			case 'NSEL':
 			case 'NPRW':
 			case 'NPLA':
 			case 'VERS':
@@ -110,27 +111,9 @@ LWO3Parser.prototype = {
 			case 'OSMP':
 			case 'OMDE':
 			case 'OUTR':
-				this.IFF.reader.skip( length );
-				break;
-
 			case 'FLAG':
-				if ( this.IFF.tree.format === 'LWO2' ) {
 
-					this.IFF.reader.skip( 4 ); // not suported
-
-				} else {
-
-					this.IFF.reader.skip( length );
-
-				}
-				break;
-			// Skipped LWO2 chunks
-			case 'DIFF': // diffuse level, may be necessary to modulate COLR with this.IFF
-				this.IFF.currentSurface.diffusePower = this.IFF.reader.getFloat32();
-				this.IFF.reader.skip( 2 );
-				break;
 			case 'TRNL':
-			case 'REFL':
 			case 'GLOS':
 			case 'SHRP':
 			case 'RFOP':
@@ -146,22 +129,10 @@ LWO3Parser.prototype = {
 			case 'ALPH':
 			case 'VCOL':
 			case 'ENAB':
+				this.IFF.debugger.skipped = true;
 				this.IFF.reader.skip( length );
 				break;
-			case 'SURF':
-				if ( this.IFF.tree.format === 'LWO2' ) {
 
-					this.IFF.parseSurfaceLwo2( length );
-
-				}
-				break;
-			case 'CLIP':
-				if ( this.IFF.tree.format === 'LWO2' ) {
-
-					this.IFF.parseClipLwo2( length );
-
-				}
-				break;
 			// Texture node chunks (not in spec)
 			case 'IPIX': // usePixelBlending
 			case 'IMIP': // useMipMaps
@@ -315,18 +286,32 @@ LWO3Parser.prototype = {
 
 			// LWO2: Basic Surface Parameters
 			case 'COLR':
-				this.IFF.currentSurface.attributes.Color = {};
-				this.IFF.currentSurface.attributes.Color.value = this.IFF.reader.getFloat32Array( 3 );
+				this.IFF.currentSurface.attributes.Color = { value: this.IFF.reader.getFloat32Array( 3 ) };
 				this.IFF.reader.skip( 2 ); // VX: envelope
 				break;
 
 			case 'LUMI':
-				this.IFF.currentSurface.attributes.luminosityLevel = this.IFF.reader.getFloat32();
+				this.IFF.currentSurface.attributes.Luminosity = { value: this.IFF.reader.getFloat32() };
 				this.IFF.reader.skip( 2 );
 				break;
 
 			case 'SPEC':
-				this.IFF.currentSurface.attributes.specularLevel = this.IFF.reader.getFloat32();
+				this.IFF.currentSurface.attributes.Specular = { value: this.IFF.reader.getFloat32() };
+				this.IFF.reader.skip( 2 );
+				break;
+
+			case 'DIFF':
+				this.IFF.currentSurface.attributes.Diffuse = { value: this.IFF.reader.getFloat32() };
+				this.IFF.reader.skip( 2 );
+				break;
+
+			case 'REFL':
+				this.IFF.currentSurface.attributes.Reflection = { value: this.IFF.reader.getFloat32() };
+				this.IFF.reader.skip( 2 );
+				break;
+
+			case 'GLOS':
+				this.IFF.currentSurface.attributes.Glossiness = { value: this.IFF.reader.getFloat32() };
 				this.IFF.reader.skip( 2 );
 				break;
 
@@ -358,15 +343,7 @@ LWO3Parser.prototype = {
 				break;
 
 			case 'IMAP':
-				if ( this.IFF.tree.format === 'LWO2' ) {
-
-					this.IFF.reader.skip( 2 );
-
-				} else {
-
-					this.IFF.currentSurface.attributes.imageMapIndex = this.IFF.reader.getUint32();
-
-				}
+				this.IFF.currentSurface.attributes.imageMapIndex = this.IFF.reader.getUint32();
 				break;
 
 			case 'IUVI': // uv channel name
@@ -378,11 +355,6 @@ LWO3Parser.prototype = {
 				break;
 			case 'IVTL': // heightWrappingMode
 				this.IFF.currentNode.heightWrappingMode = this.IFF.reader.getUint32();
-				break;
-
-			// LWO2 USE
-			case 'BLOK':
-				// skip
 				break;
 
 			default:

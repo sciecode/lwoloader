@@ -9,7 +9,7 @@ export default function LWOLoader( manager, parameters ) {
 	parameters = parameters || {};
 
 	this.resourcePath = ( parameters.resourcePath !== undefined ) ? parameters.resourcePath : undefined;
-  this.debug = ( parameters.debug !== undefined ) ? parameters.debug : false;
+	this.debug = ( parameters.debug !== undefined ) ? parameters.debug : false;
 
 }
 
@@ -598,12 +598,12 @@ MaterialParser.prototype = {
 
 		}
 
-		if ( attributes.Luminosity && ! maps.emissiveMap ) params.emissive = new THREE.Color().setScalar( attributes.Luminosity.value );
+		if ( attributes.Luminosity && attributes.Luminosity.value !== 0 && ! maps.emissiveMap ) params.emissive = new THREE.Color( 0x808080 ).multiplyScalar( attributes.Luminosity.value );
 
-		if ( attributes.Glossiness !== undefined ) params.shininess = 5 + Math.pow( attributes.Glossiness.value * 7, 6 );
+		if ( attributes.Glossiness !== undefined ) params.shininess = Math.pow( 2, attributes.Glossiness.value * 10 + 2 );
 
 		// parse specular if there is no roughness - we will interpret the material as 'Phong' in this case
-		if ( ! attributes.Roughness && attributes.Specular && ! maps.specularMap ) params.specular = new THREE.Color().setScalar( attributes.Specular.value * 1.5 );
+		if ( ! attributes.Roughness && attributes.Specular && ! maps.specularMap ) params.specular = new THREE.Color().setScalar( attributes.Specular.value );
 
 	},
 

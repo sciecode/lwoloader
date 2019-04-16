@@ -63,7 +63,6 @@ IFFParser.prototype = {
 		this.currentLayer = this.tree;
 		this.currentForm = this.tree;
 
-		// parse header form to determine LWO version
 		this.parseTopForm();
 
 		if ( this.tree.format === undefined ) return;
@@ -192,14 +191,6 @@ IFFParser.prototype = {
 			case 'IUTD':
 			case 'IVTD':
 				this.parseTextureNodeAttribute( type );
-				break;
-
-			case 'LWO2':
-				this.tree.format = type;
-				break;
-
-			case 'LWO3':
-				this.tree.format = type;
 				break;
 
 			case 'ENVL':
@@ -917,9 +908,6 @@ IFFParser.prototype = {
 
 function DataViewReader( buffer ) {
 
-	// For testing: dump whole buffer to console as a string
-	// printBuffer( buffer, 0, buffer.byteLength );
-
 	this.dv = new DataView( buffer );
 	this.offset = 0;
 
@@ -1122,7 +1110,7 @@ DataViewReader.prototype = {
 
 };
 
-// ************** DEBUGGER FUNCTIONS **************
+// ************** DEBUGGER  **************
 
 function Debugger( active ) {
 
@@ -1164,7 +1152,8 @@ Debugger.prototype = {
 			this.nodeID,
 			"(" + (this.offset) + ") -> (" + (this.dataOffset + this.length) + ")",
 			((this.node == 0) ? " {" : ""),
-			((this.skipped) ? "SKIPPED }" : "")
+			((this.skipped) ? "SKIPPED" : ""),
+			((this.node == 0 && this.skipped ) ? "}" : ""),
 		);
 
 		if ( this.node == 0 && !this.skipped ) {
