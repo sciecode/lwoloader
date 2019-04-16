@@ -598,7 +598,7 @@ MaterialParser.prototype = {
 
 		}
 
-		if ( attributes.Luminosity && attributes.Luminosity.value !== 0 && ! maps.emissiveMap ) params.emissive = params.color.multiplyScalar( attributes.Luminosity.value );
+		if ( attributes.Luminosity && attributes.Luminosity.value !== 0 && ! maps.emissiveMap ) params.emissive = new THREE.Color( 0x808080 ).multiplyScalar( attributes.Luminosity.value );
 
 		// parse specular if there is no roughness - we will interpret the material as 'Phong' in this case
 		if ( ! attributes.Roughness && attributes.Specular && ! maps.specularMap ) params.specular = new THREE.Color().setScalar( attributes.Specular.value );
