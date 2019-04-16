@@ -603,7 +603,7 @@ MaterialParser.prototype = {
 		// parse specular if there is no roughness - we will interpret the material as 'Phong' in this case
 		if ( ! attributes.Roughness && attributes.Specular && ! maps.specularMap ) params.specular = new THREE.Color().setScalar( attributes.Specular.value );
 
-		if ( params.specular && attributes.Glossiness ) params.shininess = Math.pow( 2, attributes.Glossiness.value * 10 );
+		if ( params.specular && attributes.Glossiness ) params.shininess = Math.pow( 2, attributes.Glossiness.value * 10 + 2);
 
 	},
 
