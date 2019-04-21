@@ -447,6 +447,9 @@ MaterialParser.prototype = {
 					maps.emissiveMap = texture;
 					maps.emissive = 0x808080;
 					break;
+				case 'Luminous Color':
+					maps.emissive = 0x808080;
+					break;
 				case 'Metallic':
 					maps.metalnessMap = texture;
 					maps.metalness = 0.5;
@@ -571,17 +574,14 @@ MaterialParser.prototype = {
 
 	parseStandardAttributes( params, attributes, maps ) {
 
-		if ( attributes.Luminous && attributes.Luminous.value !== 0 && attributes[ 'Luminous Color' ] ) {
+		if ( attributes.Luminous ) {
+			params.emissiveIntensity = attributes.Luminous.value;
 
-			var emissiveColor = attributes[ 'Luminous Color' ].value.map( function ( val ) {
-
-				return val * attributes.Luminous.value;
-
-			} );
-
-			params.emissive = new THREE.Color().fromArray( emissiveColor );
-
+			if ( attributes[ 'Luminous Color' ] && ! maps.emissive ) {
+					params.emissive = new THREE.Color().fromArray( attributes[ 'Luminous Color' ].value );
+			} else params.emissive = new THREE.Color( 0x808080 );
 		}
+
 		if ( attributes.Roughness && ! maps.roughnessMap ) params.roughness = attributes.Roughness.value;
 		if ( attributes.Metallic && ! maps.metalnessMap ) params.metalness = attributes.Metallic.value;
 
@@ -598,7 +598,14 @@ MaterialParser.prototype = {
 
 		}
 
-		if ( attributes.Luminosity && attributes.Luminosity.value !== 0 && ! maps.emissiveMap ) params.emissive = new THREE.Color( 0x808080 ).multiplyScalar( attributes.Luminosity.value );
+		if ( attributes.Luminosity ) {
+			params.emissiveIntensity = attributes.Luminosity.value;
+
+			if ( ! maps.emissiveMap && ! maps.map ) {
+				params.emissive = params.color;
+			} else params.emissive = new THREE.Color( 0x808080 );
+
+		}
 
 		// parse specular if there is no roughness - we will interpret the material as 'Phong' in this case
 		if ( ! attributes.Roughness && attributes.Specular && ! maps.specularMap ) params.specular = new THREE.Color().setScalar( attributes.Specular.value );
