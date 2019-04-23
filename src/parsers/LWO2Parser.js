@@ -9,14 +9,14 @@ LWO2Parser.prototype = {
 
 	constructor: LWO2Parser,
 
-	parseBlock() {
+	parseBlock: function() {
 
 		this.IFF.debugger.offset = this.IFF.reader.offset;
 		this.IFF.debugger.closeForms();
 
 		var blockID = this.IFF.reader.getIDTag();
 		var length = this.IFF.reader.getUint32(); // size of data in bytes
-		if ( this.IFF.tree.format === 'LWO2' && length > this.IFF.reader.dv.byteLength - this.IFF.reader.offset ) {
+		if ( length > this.IFF.reader.dv.byteLength - this.IFF.reader.offset ) {
 
 			this.IFF.reader.offset -= 4;
 			length = this.IFF.reader.getUint16();
@@ -33,7 +33,10 @@ LWO2Parser.prototype = {
 				this.IFF.parseForm( length );
 				break;
 
-				// SKIPPED CHUNKS
+		  // SKIPPED CHUNKS
+
+			// if break; is called directly, the position in the lwoTree is not created
+			// any sub chunks and forms are added to the parent form instead
 
 			// MISC skipped
 			case 'ICON': // Thumbnail Icon Image
@@ -71,10 +74,13 @@ LWO2Parser.prototype = {
 			case 'AXIS':
 			case 'AAST':
 			case 'PIXB':
+			case 'AUVO':
 			case 'STCK':
 
 			// Procedural Textures skipped
+			case 'PROC':
 			case 'VALU':
+			case 'FUNC':
 
 			// Gradient Textures skipped
 			case 'PNAM':
@@ -88,7 +94,7 @@ LWO2Parser.prototype = {
 			// Texture Mapping Form skipped
 			case 'CSYS':
 
-				// Surface CHUNKs skipped
+			// Surface CHUNKs skipped
 			case 'OPAQ': // top level 'opacity' checkbox
 			case 'CMAP': // clip map
 
@@ -98,13 +104,18 @@ LWO2Parser.prototype = {
 			case 'NZOM':
 			case 'NVER':
 			case 'NSRV':
+			case 'NVSK': // unknown
 			case 'NCRD':
+			case 'WRPW': // image wrap w ( for cylindrical and spherical projections)
+			case 'WRPH': // image wrap h
 			case 'NMOD':
 			case 'NPRW':
 			case 'NPLA':
+			case 'NODS':
 			case 'VERS':
 			case 'ENUM':
 			case 'TAG ':
+			case 'OPAC':
 
 			// Car Material CHUNKS
 			case 'CGMD':
@@ -116,28 +127,11 @@ LWO2Parser.prototype = {
 			case 'OSMP':
 			case 'OMDE':
 			case 'OUTR':
-				this.IFF.reader.skip( length );
-				break;
-
 			case 'FLAG':
-				if ( this.IFF.tree.format === 'LWO2' ) {
 
-					this.IFF.reader.skip( 4 ); // not suported
-
-				} else {
-
-					this.IFF.reader.skip( length );
-
-				}
-				break;
-			// Skipped LWO2 chunks
-			case 'DIFF': // diffuse level, may be necessary to modulate COLR with this.IFF
-				this.IFF.currentSurface.diffusePower = this.IFF.reader.getFloat32();
-				this.IFF.reader.skip( 2 );
-				break;
 			case 'TRNL':
-			case 'REFL':
-			case 'GLOS':
+			case 'GLOW':
+			case 'GVAL': // glow intensity
 			case 'SHRP':
 			case 'RFOP':
 			case 'RSAN':
@@ -147,27 +141,22 @@ LWO2Parser.prototype = {
 			case 'CLRH':
 			case 'CLRF':
 			case 'ADTR':
-			case 'GLOW':
 			case 'LINE':
 			case 'ALPH':
 			case 'VCOL':
 			case 'ENAB':
+				this.IFF.debugger.skipped = true;
 				this.IFF.reader.skip( length );
 				break;
+
 			case 'SURF':
-				if ( this.IFF.tree.format === 'LWO2' ) {
-
-					this.IFF.parseSurfaceLwo2( length );
-
-				}
+				this.IFF.parseSurfaceLwo2( length );
 				break;
+
 			case 'CLIP':
-				if ( this.IFF.tree.format === 'LWO2' ) {
-
-					this.IFF.parseClipLwo2( length );
-
-				}
+				this.IFF.parseClipLwo2( length );
 				break;
+
 			// Texture node chunks (not in spec)
 			case 'IPIX': // usePixelBlending
 			case 'IMIP': // useMipMaps
@@ -203,6 +192,14 @@ LWO2Parser.prototype = {
 			case 'VMAP':
 				this.IFF.parseVertexMapping( length );
 				break;
+
+			case 'AUVU':
+			case 'AUVN':
+				this.IFF.reader.skip( length - 1 );
+				this.IFF.reader.getVariableLengthIndex() // VX
+				break;
+
+
 
 			case 'POLS':
 				this.IFF.parsePolygonList( length );
@@ -257,7 +254,7 @@ LWO2Parser.prototype = {
 				this.IFF.currentForm.referenceObjectID = this.IFF.reader.getUint32();
 				break;
 
-				// Surface Blocks
+			// Surface Blocks
 
 			case 'SSHN':
 				this.IFF.currentSurface.surfaceShaderName = this.IFF.reader.getString();
@@ -321,18 +318,32 @@ LWO2Parser.prototype = {
 
 			// LWO2: Basic Surface Parameters
 			case 'COLR':
-				this.IFF.currentSurface.attributes.Color = {};
-				this.IFF.currentSurface.attributes.Color.value = this.IFF.reader.getFloat32Array( 3 );
+				this.IFF.currentSurface.attributes.Color = { value: this.IFF.reader.getFloat32Array( 3 ) };
 				this.IFF.reader.skip( 2 ); // VX: envelope
 				break;
 
 			case 'LUMI':
-				this.IFF.currentSurface.attributes.luminosityLevel = this.IFF.reader.getFloat32();
+				this.IFF.currentSurface.attributes.Luminosity = { value: this.IFF.reader.getFloat32() };
 				this.IFF.reader.skip( 2 );
 				break;
 
 			case 'SPEC':
-				this.IFF.currentSurface.attributes.specularLevel = this.IFF.reader.getFloat32();
+				this.IFF.currentSurface.attributes.Specular = { value: this.IFF.reader.getFloat32() };
+				this.IFF.reader.skip( 2 );
+				break;
+
+			case 'DIFF':
+				this.IFF.currentSurface.attributes.Diffuse = { value: this.IFF.reader.getFloat32() };
+				this.IFF.reader.skip( 2 );
+				break;
+
+			case 'REFL':
+				this.IFF.currentSurface.attributes.Reflection = { value: this.IFF.reader.getFloat32() };
+				this.IFF.reader.skip( 2 );
+				break;
+
+			case 'GLOS':
+				this.IFF.currentSurface.attributes.Glossiness = { value: this.IFF.reader.getFloat32() };
 				this.IFF.reader.skip( 2 );
 				break;
 
@@ -364,15 +375,12 @@ LWO2Parser.prototype = {
 				break;
 
 			case 'IMAP':
-				if ( this.IFF.tree.format === 'LWO2' ) {
+				this.IFF.reader.skip( 2 );
+				break;
 
-					this.IFF.reader.skip( 2 );
-
-				} else {
-
-					this.IFF.currentSurface.attributes.imageMapIndex = this.IFF.reader.getUint32();
-
-				}
+			case 'TMAP':
+				this.IFF.debugger.skipped = true;
+				this.IFF.reader.skip( length ); // needs implementing
 				break;
 
 			case 'IUVI': // uv channel name
