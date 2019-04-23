@@ -38,9 +38,8 @@ import { LWO3Parser } from './LWO3Parser.js'
 function IFFParser( parameters ) {
 
 	parameters = parameters || {};
-
-	var _debug = ( parameters.debug !== undefined ) ? parameters.debug : false;
-	this.debugger = new Debugger( _debug );
+	this.debugger = new Debugger();
+	// this.debugger.enable(); // un-comment to log IFF hierarchy.
 
 }
 
@@ -1112,9 +1111,9 @@ DataViewReader.prototype = {
 
 // ************** DEBUGGER  **************
 
-function Debugger( active ) {
+function Debugger( ) {
 
-	this.active = active;
+	this.active = false;
 	this.depth = 0;
 	this.formList = [];
 
@@ -1123,6 +1122,10 @@ function Debugger( active ) {
 Debugger.prototype = {
 
 	constructor: Debugger,
+
+	enable: function () {
+		this.active = true;
+	},
 
 	log: function () {
 

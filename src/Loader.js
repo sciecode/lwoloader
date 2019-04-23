@@ -9,7 +9,6 @@ export default function LWOLoader( manager, parameters ) {
 	parameters = parameters || {};
 
 	this.resourcePath = ( parameters.resourcePath !== undefined ) ? parameters.resourcePath : undefined;
-	this.debug = ( parameters.debug !== undefined ) ? parameters.debug : false;
 
 }
 
@@ -65,7 +64,7 @@ LWOLoader.prototype = {
 
 	parse: function ( iffBuffer, path, modelName ) {
 
-		lwoTree = new IFFParser( { debug: this.debug } ).parse( iffBuffer );
+		lwoTree = new IFFParser().parse( iffBuffer );
 
 		// console.log( 'lwoTree', lwoTree );
 
