@@ -210,7 +210,7 @@
 
 
 				// LWOs
-				var loader = new THREE.LWOLoader( manager, { debug: false } );
+				var loader = new THREE.LWOLoader( manager );
 				loader.load( object, function ( object ) {
 					object.meshes.forEach( function ( child ) {
 						scene.add( child );
