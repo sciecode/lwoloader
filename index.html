@@ -32,6 +32,7 @@
 			// LWOLoader expects texture files located inside "Images" folder in the same directory as model file.
 			// previous models should now correctly load textures.
 
+			object = '3/Demo.lwo'; // Good
 			//object = '3/LinesPoints.lwo'; // Good
 			//object = '3/morph.lwo'; // Good
 			//object = '3/Cube00-Basic.lwo'; // Good
@@ -47,7 +48,6 @@
 			//object = '3/Morph-Test.lwo'; // Good
 			//object = '3/Points-Basic.lwo'; // Good
 			//object = '3/SmoothingSphere.lwo'; // Good
-
 			//object = '3/ComplexTexturedMaterials.lwo'; // Looking for textures in the wrong place.  Lightwave BSDF material may be a better match for the newer MeshPhysicalMaterial which could map specularity to reflectivity and add in the clearCoat and clearCoatRoughness as well.
 			//object = '3/Cube06-UVTextureMapStandard.lwo'; // Looking for textures in the wrong place
 			//object = '3/Cube07-UVTextureMapPhong.lwo'; // Looking for textures in the wrong place
@@ -64,10 +64,9 @@
 			//object = '3/n-gon.lwo'; // n-gon geometry (greater than 4 point polys) doesn't load
 			//object = '3/rocket_(UVmaps).lwo'; // Discontinuous UV not supported. Looking for textures in the wrong place
 			//object = '3/UV-DiscontinuousTest.lwo'; // Discontinuous UV not supported. Looking for textures in the wrong place
-
 			//object = '3/Clearcoat.lwo',; // Lightwave Principled BSDF could use the newer MeshPhysicalMaterial rather than MeshStandardMaterial since it would also support clearcoat and clearcoatGloss
 			//object = '3/ColorHighlight.lwo',; // Lightwave Standard (Phong) materials don't support specular highlight color, but do have a property "Color Highlights" which at 0% is white and 100% is equal to the materials color
-			object = '3/Luminosity.lwo'; // For Phong emissiveColor should equal color, and emissiveIntensity coorilates to % of Luminosity
+			//object = '3/Luminosity.lwo'; // For Phong emissiveColor should equal color, and emissiveIntensity coorilates to % of Luminosity
 			//object = '3/UV-Discontinuous-VMAD.lwo',; // Discontinuous UV not supported.
 			//object = '3/UV-Discontinuous-VMAD-Cube.lwo',; // Discontinuous UV not supported.
 
@@ -79,6 +78,7 @@
 			var camera, scene, renderer, light, mesh;
 
 			var filenames = [
+				'3/Demo.lwo',
 				'3/Line-Basic.lwo',
 				'3/Points-Basic.lwo',
 				'3/LinesPoints.lwo',
