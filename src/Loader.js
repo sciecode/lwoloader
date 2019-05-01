@@ -565,6 +565,7 @@ MaterialParser.prototype = {
 		if ( attributes[ 'Refraction Index' ] ) params.refractionRatio = 1 / attributes[ 'Refraction Index' ].value;
 
 		this.parsePhysicalAttributes( params, attributes, maps );
+		this.parseStandardAttributes( params, attributes, maps );
 		this.parsePhongAttributes( params, attributes, maps );
 
 		return params;
@@ -572,6 +573,18 @@ MaterialParser.prototype = {
 	},
 
 	parsePhysicalAttributes( params, attributes, maps ) {
+
+		if ( attributes.Clearcoat && attributes.Clearcoat.value > 0 ) {
+			params.clearCoat = attributes.Clearcoat.value;
+
+			if ( attributes[ 'Clearcoat Gloss' ] ) {
+				params.clearCoatRoughness = 0.5 * ( 1 - attributes[ 'Clearcoat Gloss' ].value );
+			}
+		}
+
+	},
+
+	parseStandardAttributes( params, attributes, maps ) {
 
 
 		if ( attributes.Luminous ) {
@@ -582,13 +595,6 @@ MaterialParser.prototype = {
 			} else params.emissive = new THREE.Color( 0x808080 );
 		}
 
-		if ( attributes.Clearcoat ) {
-			params.clearCoat = attributes.Clearcoat.value;
-
-			if ( attributes[ 'Clearcoat Gloss' ] ) {
-				params.clearCoatRoughness = 0.5*(1 - attributes[ 'Clearcoat Gloss' ].value);
-			}
-		}
 		if ( attributes.Roughness && ! maps.roughnessMap ) params.roughness = attributes.Roughness.value;
 		if ( attributes.Metallic && ! maps.metalnessMap ) params.metalness = attributes.Metallic.value;
 
@@ -714,7 +720,8 @@ MaterialParser.prototype = {
 
 	getType( nodeData ) {
 
-		if ( nodeData.Roughness ) return 'Physical';
+		if ( nodeData.Clearcoat && nodeData.Clearcoat.value > 0 ) return 'Physical';
+		if ( nodeData.Roughness ) return 'Standard';
 		return 'Phong';
 
 	}
