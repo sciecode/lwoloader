@@ -10,6 +10,9 @@ Licensed under Creative Commons Attribution 4.0 International License
 Environment images by [HDRI Haven](https://hdrihaven.com).
 Licensed under Creative Commons CC0 Public Domain
 
+Texture images by [CC0 Textures](https://cc0textures.com/).
+Licensed under Creative Commons CC0 Public Domain
+
 # Development & Testing
 `npm install` to install development dependencies.
 
