@@ -319,7 +319,7 @@ MaterialParser.prototype = {
 		params = Object.assign( maps, params );
 		params = Object.assign( params, attributes );
 
-		var type = connections.attributes.Roughness ? 'Standard' : 'Phong';
+		var type = this.getType(connections.attributes);
 
 		return new THREE[ 'Mesh' + type + 'Material' ]( params );
 
@@ -564,6 +564,7 @@ MaterialParser.prototype = {
 
 		if ( attributes[ 'Refraction Index' ] ) params.refractionRatio = 1 / attributes[ 'Refraction Index' ].value;
 
+		this.parsePhysicalAttributes( params, attributes, maps );
 		this.parseStandardAttributes( params, attributes, maps );
 		this.parsePhongAttributes( params, attributes, maps );
 
@@ -571,7 +572,20 @@ MaterialParser.prototype = {
 
 	},
 
+	parsePhysicalAttributes( params, attributes, maps ) {
+
+		if ( attributes.Clearcoat && attributes.Clearcoat.value > 0 ) {
+			params.clearCoat = attributes.Clearcoat.value;
+
+			if ( attributes[ 'Clearcoat Gloss' ] ) {
+				params.clearCoatRoughness = 0.5 * ( 1 - attributes[ 'Clearcoat Gloss' ].value );
+			}
+		}
+
+	},
+
 	parseStandardAttributes( params, attributes, maps ) {
+
 
 		if ( attributes.Luminous ) {
 			params.emissiveIntensity = attributes.Luminous.value;
@@ -607,9 +621,16 @@ MaterialParser.prototype = {
 		}
 
 		// parse specular if there is no roughness - we will interpret the material as 'Phong' in this case
-		if ( ! attributes.Roughness && attributes.Specular && ! maps.specularMap ) params.specular = new THREE.Color().setScalar( attributes.Specular.value );
+		if ( ! attributes.Roughness && attributes.Specular && ! maps.specularMap )  {
+			if ( attributes[ 'Color Highlight' ] ) {
+				params.specular = new THREE.Color().setScalar( attributes.Specular.value ).lerp( params.color.clone().multiplyScalar( attributes.Specular.value ), attributes[ 'Color Highlight' ].value );
+			}
+			else {
+				params.specular = new THREE.Color().setScalar( attributes.Specular.value );
+			}
+		}
 
-		if ( params.specular && attributes.Glossiness ) params.shininess = Math.pow( 2, attributes.Glossiness.value * 10 + 2);
+		if ( params.specular && attributes.Glossiness ) params.shininess = 7 + Math.pow( 2, attributes.Glossiness.value * 12 + 2);
 
 	},
 
@@ -699,10 +720,11 @@ MaterialParser.prototype = {
 
 	getType( nodeData ) {
 
-		if ( nodeData.roughness ) return 'Standard';
+		if ( nodeData.Clearcoat && nodeData.Clearcoat.value > 0 ) return 'Physical';
+		if ( nodeData.Roughness ) return 'Standard';
 		return 'Phong';
 
-	},
+	}
 
 };
 
