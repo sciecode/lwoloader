@@ -1,6 +1,6 @@
 const header =
 `/**
- * @version 1.0.0
+ * @version 1.1.0
  *
  * @author Lewy Blue https://github.com/looeee
  * @author Guilherme Avila https://github/sciecode
@@ -14,7 +14,7 @@ const header =
  * 	http://static.lightwave3d.com/sdk/2018/html/filefmts/lwo2.html
  *
  * Development and test repository:
- *	https://github.com/threejs/lwoloader-test-models
+ *	https://github.com/threejs/lwoloader
  *
  **/
  `

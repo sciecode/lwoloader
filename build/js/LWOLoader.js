@@ -1,5 +1,5 @@
 /**
- * @version 1.0.0
+ * @version 1.1.0
  *
  * @author Lewy Blue https://github.com/looeee
  * @author Guilherme Avila https://github/sciecode
@@ -13,7 +13,7 @@
  * 	http://static.lightwave3d.com/sdk/2018/html/filefmts/lwo2.html
  *
  * Development and test repository:
- *	https://github.com/threejs/lwoloader-test-models
+ *	https://github.com/threejs/lwoloader
  *
  **/
  
@@ -858,9 +858,8 @@ this.THREE.LWOLoader = (function () {
 	function IFFParser( parameters ) {
 
 		parameters = parameters || {};
-
-		var _debug = ( parameters.debug !== undefined ) ? parameters.debug : false;
-		this.debugger = new Debugger( _debug );
+		this.debugger = new Debugger();
+		// this.debugger.enable(); // un-comment to log IFF hierarchy.
 
 	}
 
@@ -1925,9 +1924,9 @@ this.THREE.LWOLoader = (function () {
 
 	// ************** DEBUGGER  **************
 
-	function Debugger( active ) {
+	function Debugger( ) {
 
-		this.active = active;
+		this.active = false;
 		this.depth = 0;
 		this.formList = [];
 
@@ -1936,6 +1935,10 @@ this.THREE.LWOLoader = (function () {
 	Debugger.prototype = {
 
 		constructor: Debugger,
+
+		enable: function () {
+			this.active = true;
+		},
 
 		log: function () {
 
@@ -2031,7 +2034,6 @@ this.THREE.LWOLoader = (function () {
 		parameters = parameters || {};
 
 		this.resourcePath = ( parameters.resourcePath !== undefined ) ? parameters.resourcePath : undefined;
-		this.debug = ( parameters.debug !== undefined ) ? parameters.debug : false;
 
 	}
 
@@ -2087,7 +2089,7 @@ this.THREE.LWOLoader = (function () {
 
 		parse: function ( iffBuffer, path, modelName ) {
 
-			lwoTree = new IFFParser( { debug: this.debug } ).parse( iffBuffer );
+			lwoTree = new IFFParser().parse( iffBuffer );
 
 			// console.log( 'lwoTree', lwoTree );
 
@@ -2342,7 +2344,7 @@ this.THREE.LWOLoader = (function () {
 			params = Object.assign( maps, params );
 			params = Object.assign( params, attributes );
 
-			var type = connections.attributes.Roughness ? 'Standard' : 'Phong';
+			var type = this.getType(connections.attributes);
 
 			return new THREE[ 'Mesh' + type + 'Material' ]( params );
 
@@ -2587,6 +2589,7 @@ this.THREE.LWOLoader = (function () {
 
 			if ( attributes[ 'Refraction Index' ] ) params.refractionRatio = 1 / attributes[ 'Refraction Index' ].value;
 
+			this.parsePhysicalAttributes( params, attributes, maps );
 			this.parseStandardAttributes( params, attributes, maps );
 			this.parsePhongAttributes( params, attributes, maps );
 
@@ -2594,7 +2597,20 @@ this.THREE.LWOLoader = (function () {
 
 		},
 
+		parsePhysicalAttributes( params, attributes, maps ) {
+
+			if ( attributes.Clearcoat && attributes.Clearcoat.value > 0 ) {
+				params.clearCoat = attributes.Clearcoat.value;
+
+				if ( attributes[ 'Clearcoat Gloss' ] ) {
+					params.clearCoatRoughness = 0.5 * ( 1 - attributes[ 'Clearcoat Gloss' ].value );
+				}
+			}
+
+		},
+
 		parseStandardAttributes( params, attributes, maps ) {
+
 
 			if ( attributes.Luminous ) {
 				params.emissiveIntensity = attributes.Luminous.value;
@@ -2630,9 +2646,16 @@ this.THREE.LWOLoader = (function () {
 			}
 
 			// parse specular if there is no roughness - we will interpret the material as 'Phong' in this case
-			if ( ! attributes.Roughness && attributes.Specular && ! maps.specularMap ) params.specular = new THREE.Color().setScalar( attributes.Specular.value );
+			if ( ! attributes.Roughness && attributes.Specular && ! maps.specularMap )  {
+				if ( attributes[ 'Color Highlight' ] ) {
+					params.specular = new THREE.Color().setScalar( attributes.Specular.value ).lerp( params.color.clone().multiplyScalar( attributes.Specular.value ), attributes[ 'Color Highlight' ].value );
+				}
+				else {
+					params.specular = new THREE.Color().setScalar( attributes.Specular.value );
+				}
+			}
 
-			if ( params.specular && attributes.Glossiness ) params.shininess = Math.pow( 2, attributes.Glossiness.value * 10 + 2);
+			if ( params.specular && attributes.Glossiness ) params.shininess = 7 + Math.pow( 2, attributes.Glossiness.value * 12 + 2);
 
 		},
 
@@ -2722,10 +2745,11 @@ this.THREE.LWOLoader = (function () {
 
 		getType( nodeData ) {
 
-			if ( nodeData.roughness ) return 'Standard';
+			if ( nodeData.Clearcoat && nodeData.Clearcoat.value > 0 ) return 'Physical';
+			if ( nodeData.Roughness ) return 'Standard';
 			return 'Phong';
 
-		},
+		}
 
 	};
 
