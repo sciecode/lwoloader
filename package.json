@@ -1,18 +1,25 @@
 {
-  "name": "lwoloader",
-  "version": "1.1.0",
-  "description": "threejs LWOLoader",
-  "main": "build/LWOLoader.js",
-  "repository": "threejs/lwoloader",
-  "scripts": {
-    "build": "rollup -c\"",
-    "test": "concurrently --names \"ROLLUP,HTTP\" -c \"bgBlue.bold,bgGreen.bold\" \"rollup -c\" \"http-server -c-1 -p 8080\""
-  },
-  "author": "Threejs",
-  "license": "MIT",
-  "devDependencies": {
-    "concurrently": "^4.1.0",
-    "http-server": "^0.11.1",
-    "rollup": "^1.4.0"
-  }
+	"name": "lwoloader",
+	"version": "1.1.1",
+	"description": "threejs LWOLoader",
+	"main": "build/LWOLoader.js",
+	"repository": "threejs/lwoloader",
+	"scripts": {
+		"build": "rollup -c\"",
+		"dev": "concurrently --names \"ROLLUP,HTTP\" -c \"bgBlue.bold,bgGreen.bold\" \"rollup -c -w\" \"http-server -c-1 -p 8080\"",
+		"lint": "eslint ."
+	},
+	"author": "Threejs",
+	"license": "MIT",
+	"eslintConfig": {
+		"extends": "mdcs"
+	},
+	"devDependencies": {
+		"concurrently": "^4.1.0",
+		"http-server": "^0.9.0",
+		"rollup": "^1.4.0",
+		"eslint": "^5.16.0",
+		"eslint-config-mdcs": "^4.2.3",
+		"eslint-plugin-html": "^5.0.3"
+	}
 }

@@ -1,6 +1,6 @@
 const header =
 `/**
- * @version 1.1.0
+ * @version 1.1.1
  *
  * @author Lewy Blue https://github.com/looeee
  * @author Guilherme Avila https://github/sciecode
@@ -17,15 +17,14 @@ const header =
  *	https://github.com/threejs/lwoloader
  *
  **/
- `
+`;
 
 
 export default {
 	input: 'src/Loader.js',
 	output:
 		{
-			format: 'iife',
-			name: 'THREE.LWOLoader',
+			format: 'esm',
 			file: 'build/js/LWOLoader.js',
 			indent: '\t',
 			banner: header

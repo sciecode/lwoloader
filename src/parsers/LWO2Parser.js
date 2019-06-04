@@ -9,7 +9,7 @@ LWO2Parser.prototype = {
 
 	constructor: LWO2Parser,
 
-	parseBlock: function() {
+	parseBlock: function () {
 
 		this.IFF.debugger.offset = this.IFF.reader.offset;
 		this.IFF.debugger.closeForms();
@@ -33,11 +33,9 @@ LWO2Parser.prototype = {
 				this.IFF.parseForm( length );
 				break;
 
-		  // SKIPPED CHUNKS
-
+			// SKIPPED CHUNKS
 			// if break; is called directly, the position in the lwoTree is not created
 			// any sub chunks and forms are added to the parent form instead
-
 			// MISC skipped
 			case 'ICON': // Thumbnail Icon Image
 			case 'VMPA': // Vertex Map Parameter
@@ -196,10 +194,8 @@ LWO2Parser.prototype = {
 			case 'AUVU':
 			case 'AUVN':
 				this.IFF.reader.skip( length - 1 );
-				this.IFF.reader.getVariableLengthIndex() // VX
+				this.IFF.reader.getVariableLengthIndex(); // VX
 				break;
-
-
 
 			case 'POLS':
 				this.IFF.parsePolygonList( length );
@@ -228,13 +224,12 @@ LWO2Parser.prototype = {
 				this.IFF.currentForm.comment = this.IFF.reader.getString();
 				break;
 
-				// Envelope Form
+			// Envelope Form
 			case 'NAME':
 				this.IFF.currentForm.channelName = this.IFF.reader.getString();
 				break;
 
-				// Image Map Layer
-
+			// Image Map Layer
 			case 'WRAP':
 				this.IFF.currentForm.wrap = { w: this.IFF.reader.getUint16(), h: this.IFF.reader.getUint16() };
 				break;
@@ -244,8 +239,7 @@ LWO2Parser.prototype = {
 				this.IFF.currentForm.imageIndex = index;
 				break;
 
-				// Texture Mapping Form
-
+			// Texture Mapping Form
 			case 'OREF':
 				this.IFF.currentForm.referenceObject = this.IFF.reader.getString();
 				break;
@@ -255,7 +249,6 @@ LWO2Parser.prototype = {
 				break;
 
 			// Surface Blocks
-
 			case 'SSHN':
 				this.IFF.currentSurface.surfaceShaderName = this.IFF.reader.getString();
 				break;
@@ -264,8 +257,7 @@ LWO2Parser.prototype = {
 				this.IFF.currentSurface.surfaceCustomAOVName = this.IFF.reader.getString();
 				break;
 
-				// Nodal Blocks
-
+			// Nodal Blocks
 			case 'NSTA':
 				this.IFF.currentForm.disabled = this.IFF.reader.getUint16();
 				break;
@@ -309,8 +301,7 @@ LWO2Parser.prototype = {
 				else this.IFF.reader.skip( length );
 				break;
 
-				// LWO2 Spec chunks: these are needed since the SURF FORMs are often in LWO2 format
-
+			// LWO2 Spec chunks: these are needed since the SURF FORMs are often in LWO2 format
 			case 'SMAN':
 				var maxSmoothingAngle = this.IFF.reader.getFloat32();
 				this.IFF.currentSurface.attributes.smooth = ( maxSmoothingAngle < 0 ) ? false : true;
@@ -405,9 +396,11 @@ LWO2Parser.prototype = {
 		}
 
 		if ( blockID != 'FORM' ) {
+
 			this.IFF.debugger.node = 1;
 			this.IFF.debugger.nodeID = blockID;
 			this.IFF.debugger.log();
+
 		}
 
 		if ( this.IFF.reader.offset >= this.IFF.currentFormEnd ) {
@@ -418,6 +411,6 @@ LWO2Parser.prototype = {
 
 	}
 
-}
+};
 
 export { LWO2Parser };

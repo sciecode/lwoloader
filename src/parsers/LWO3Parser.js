@@ -9,7 +9,7 @@ LWO3Parser.prototype = {
 
 	constructor: LWO3Parser,
 
-	parseBlock: function() {
+	parseBlock: function () {
 
 		this.IFF.debugger.offset = this.IFF.reader.offset;
 		this.IFF.debugger.closeForms();
@@ -28,7 +28,6 @@ LWO3Parser.prototype = {
 				break;
 
 			// SKIPPED CHUNKS
-
 			// MISC skipped
 			case 'ICON': // Thumbnail Icon Image
 			case 'VMPA': // Vertex Map Parameter
@@ -196,13 +195,12 @@ LWO3Parser.prototype = {
 				this.IFF.currentForm.comment = this.IFF.reader.getString();
 				break;
 
-				// Envelope Form
+			// Envelope Form
 			case 'NAME':
 				this.IFF.currentForm.channelName = this.IFF.reader.getString();
 				break;
 
-				// Image Map Layer
-
+			// Image Map Layer
 			case 'WRAP':
 				this.IFF.currentForm.wrap = { w: this.IFF.reader.getUint16(), h: this.IFF.reader.getUint16() };
 				break;
@@ -212,8 +210,7 @@ LWO3Parser.prototype = {
 				this.IFF.currentForm.imageIndex = index;
 				break;
 
-				// Texture Mapping Form
-
+			// Texture Mapping Form
 			case 'OREF':
 				this.IFF.currentForm.referenceObject = this.IFF.reader.getString();
 				break;
@@ -222,8 +219,7 @@ LWO3Parser.prototype = {
 				this.IFF.currentForm.referenceObjectID = this.IFF.reader.getUint32();
 				break;
 
-				// Surface Blocks
-
+			// Surface Blocks
 			case 'SSHN':
 				this.IFF.currentSurface.surfaceShaderName = this.IFF.reader.getString();
 				break;
@@ -232,8 +228,7 @@ LWO3Parser.prototype = {
 				this.IFF.currentSurface.surfaceCustomAOVName = this.IFF.reader.getString();
 				break;
 
-				// Nodal Blocks
-
+			// Nodal Blocks
 			case 'NSTA':
 				this.IFF.currentForm.disabled = this.IFF.reader.getUint16();
 				break;
@@ -277,8 +272,7 @@ LWO3Parser.prototype = {
 				else this.IFF.reader.skip( length );
 				break;
 
-				// LWO2 Spec chunks: these are needed since the SURF FORMs are often in LWO2 format
-
+			// LWO2 Spec chunks: these are needed since the SURF FORMs are often in LWO2 format
 			case 'SMAN':
 				var maxSmoothingAngle = this.IFF.reader.getFloat32();
 				this.IFF.currentSurface.attributes.smooth = ( maxSmoothingAngle < 0 ) ? false : true;
@@ -363,9 +357,11 @@ LWO3Parser.prototype = {
 		}
 
 		if ( blockID != 'FORM' ) {
+
 			this.IFF.debugger.node = 1;
 			this.IFF.debugger.nodeID = blockID;
 			this.IFF.debugger.log();
+
 		}
 
 		if ( this.IFF.reader.offset >= this.IFF.currentFormEnd ) {
@@ -376,6 +372,6 @@ LWO3Parser.prototype = {
 
 	}
 
-}
+};
 
 export { LWO3Parser };

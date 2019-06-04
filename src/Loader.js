@@ -1,8 +1,8 @@
-import { IFFParser } from './parsers/IFFParser.js'
+import { IFFParser } from './parsers/IFFParser.js';
 
 var lwoTree;
 
-export default function LWOLoader( manager, parameters ) {
+THREE.LWOLoader = function ( manager, parameters ) {
 
 	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
 
@@ -10,11 +10,11 @@ export default function LWOLoader( manager, parameters ) {
 
 	this.resourcePath = ( parameters.resourcePath !== undefined ) ? parameters.resourcePath : undefined;
 
-}
+};
 
-LWOLoader.prototype = {
+THREE.LWOLoader.prototype = {
 
-	constructor: LWOLoader,
+	constructor: THREE.LWOLoader,
 
 	crossOrigin: 'anonymous',
 
@@ -319,13 +319,13 @@ MaterialParser.prototype = {
 		params = Object.assign( maps, params );
 		params = Object.assign( params, attributes );
 
-		var type = this.getType(connections.attributes);
+		var materialType = this.getMaterialType( connections.attributes );
 
-		return new THREE[ 'Mesh' + type + 'Material' ]( params );
+		return new materialType( params );
 
 	},
 
-	parseMaterialLwo2( materialData, name, textures ) {
+	parseMaterialLwo2( materialData, name/*, textures*/ ) {
 
 		var params = {
 			name: name,
@@ -335,7 +335,7 @@ MaterialParser.prototype = {
 
 		var attributes = this.parseAttributes( materialData.attributes, {} );
 		params = Object.assign( params, attributes );
-		return new THREE[ 'MeshPhongMaterial' ]( params );
+		return new THREE.MeshPhongMaterial( params );
 
 	},
 
@@ -572,14 +572,18 @@ MaterialParser.prototype = {
 
 	},
 
-	parsePhysicalAttributes( params, attributes, maps ) {
+	parsePhysicalAttributes( params, attributes/*, maps*/ ) {
 
 		if ( attributes.Clearcoat && attributes.Clearcoat.value > 0 ) {
+
 			params.clearCoat = attributes.Clearcoat.value;
 
 			if ( attributes[ 'Clearcoat Gloss' ] ) {
+
 				params.clearCoatRoughness = 0.5 * ( 1 - attributes[ 'Clearcoat Gloss' ].value );
+
 			}
+
 		}
 
 	},
@@ -588,11 +592,19 @@ MaterialParser.prototype = {
 
 
 		if ( attributes.Luminous ) {
+
 			params.emissiveIntensity = attributes.Luminous.value;
 
 			if ( attributes[ 'Luminous Color' ] && ! maps.emissive ) {
-					params.emissive = new THREE.Color().fromArray( attributes[ 'Luminous Color' ].value );
-			} else params.emissive = new THREE.Color( 0x808080 );
+
+				params.emissive = new THREE.Color().fromArray( attributes[ 'Luminous Color' ].value );
+
+			} else {
+
+				params.emissive = new THREE.Color( 0x808080 );
+
+			}
+
 		}
 
 		if ( attributes.Roughness && ! maps.roughnessMap ) params.roughness = attributes.Roughness.value;
@@ -612,25 +624,37 @@ MaterialParser.prototype = {
 		}
 
 		if ( attributes.Luminosity ) {
+
 			params.emissiveIntensity = attributes.Luminosity.value;
 
 			if ( ! maps.emissiveMap && ! maps.map ) {
+
 				params.emissive = params.color;
-			} else params.emissive = new THREE.Color( 0x808080 );
+
+			} else {
+
+				params.emissive = new THREE.Color( 0x808080 );
+
+			}
 
 		}
 
 		// parse specular if there is no roughness - we will interpret the material as 'Phong' in this case
-		if ( ! attributes.Roughness && attributes.Specular && ! maps.specularMap )  {
+		if ( ! attributes.Roughness && attributes.Specular && ! maps.specularMap ) {
+
 			if ( attributes[ 'Color Highlight' ] ) {
+
 				params.specular = new THREE.Color().setScalar( attributes.Specular.value ).lerp( params.color.clone().multiplyScalar( attributes.Specular.value ), attributes[ 'Color Highlight' ].value );
-			}
-			else {
+
+			} else {
+
 				params.specular = new THREE.Color().setScalar( attributes.Specular.value );
+
 			}
+
 		}
 
-		if ( params.specular && attributes.Glossiness ) params.shininess = 7 + Math.pow( 2, attributes.Glossiness.value * 12 + 2);
+		if ( params.specular && attributes.Glossiness ) params.shininess = 7 + Math.pow( 2, attributes.Glossiness.value * 12 + 2 );
 
 	},
 
@@ -693,10 +717,12 @@ MaterialParser.prototype = {
 			path,
 			undefined,
 			undefined,
-			function() {
+			function () {
+
 				console.warn( 'LWOLoader: non-standard resource hierarchy. Use \`resourcePath\` parameter to specify root content directory.' );
+
 			}
-		 );
+		);
 
 		return texture;
 
@@ -718,11 +744,11 @@ MaterialParser.prototype = {
 
 	},
 
-	getType( nodeData ) {
+	getMaterialType( nodeData ) {
 
-		if ( nodeData.Clearcoat && nodeData.Clearcoat.value > 0 ) return 'Physical';
-		if ( nodeData.Roughness ) return 'Standard';
-		return 'Phong';
+		if ( nodeData.Clearcoat && nodeData.Clearcoat.value > 0 ) return THREE.MeshPhysicalMaterial;
+		if ( nodeData.Roughness ) return THREE.MeshStandardMaterial;
+		return THREE.MeshPhongMaterial;
 
 	}
 
@@ -1004,7 +1030,8 @@ function extractParentUrl( url, dir ) {
 
 	var index = url.indexOf( dir );
 
-	if ( index === -1 ) return './';
+	if ( index === - 1 ) return './';
 
 	return url.substr( 0, index );
+
 }

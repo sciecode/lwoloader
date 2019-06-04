@@ -1,5 +1,5 @@
-import { LWO2Parser } from './LWO2Parser.js'
-import { LWO3Parser } from './LWO3Parser.js'
+import { LWO2Parser } from './LWO2Parser.js';
+import { LWO3Parser } from './LWO3Parser.js';
 
 /**
  * === IFFParser ===
@@ -35,9 +35,8 @@ import { LWO3Parser } from './LWO3Parser.js'
  *
  **/
 
-function IFFParser( parameters ) {
+function IFFParser( ) {
 
-	parameters = parameters || {};
 	this.debugger = new Debugger();
 	// this.debugger.enable(); // un-comment to log IFF hierarchy.
 
@@ -71,8 +70,7 @@ IFFParser.prototype = {
 			this.parser = new LWO2Parser( this );
 			while ( ! this.reader.endOfFile() ) this.parser.parseBlock();
 
-		}
-		else if ( this.tree.format === 'LWO3' ) {
+		} else if ( this.tree.format === 'LWO3' ) {
 
 			this.parser = new LWO3Parser( this );
 			while ( ! this.reader.endOfFile() ) this.parser.parseBlock();
@@ -93,8 +91,10 @@ IFFParser.prototype = {
 		var topForm = this.reader.getIDTag();
 
 		if ( topForm !== 'FORM' ) {
-			console.warn( "LWOLoader: Top-level FORM missing."  );
+
+			console.warn( "LWOLoader: Top-level FORM missing." );
 			return;
+
 		}
 
 		var length = this.reader.getUint32();
@@ -105,10 +105,13 @@ IFFParser.prototype = {
 		var type = this.reader.getIDTag();
 
 		if ( type === 'LWO2' ) {
+
 			this.tree.format = type;
-		}
-		else if ( type === 'LWO3') {
+
+		} else if ( type === 'LWO3' ) {
+
 			this.tree.format = type;
+
 		}
 
 		this.debugger.node = 0;
@@ -370,7 +373,6 @@ IFFParser.prototype = {
 
 	parseSurfaceLwo2( length ) {
 
-		var firstOffset = this.reader.offset;
 		var name = this.reader.getString();
 
 		var surface = {
@@ -576,7 +578,6 @@ IFFParser.prototype = {
 			fileName: ""
 		};
 
-		var readed = 4;
 		// seach STIL block
 		while ( true ) {
 
@@ -588,7 +589,7 @@ IFFParser.prototype = {
 				break;
 
 			}
-			readed += 4 + n_length;
+
 			if ( n_length >= length ) {
 
 				break;
@@ -1124,12 +1125,14 @@ Debugger.prototype = {
 	constructor: Debugger,
 
 	enable: function () {
+
 		this.active = true;
+
 	},
 
 	log: function () {
 
-		if ( !this.active ) return;
+		if ( ! this.active ) return;
 
 		var nodeType;
 
@@ -1153,13 +1156,13 @@ Debugger.prototype = {
 			"| ".repeat( this.depth ) +
 			nodeType,
 			this.nodeID,
-			"(" + (this.offset) + ") -> (" + (this.dataOffset + this.length) + ")",
-			((this.node == 0) ? " {" : ""),
-			((this.skipped) ? "SKIPPED" : ""),
-			((this.node == 0 && this.skipped ) ? "}" : ""),
+			`( ${this.offset} ) -> ( ${this.dataOffset + this.length} )`,
+			( ( this.node == 0 ) ? " {" : "" ),
+			( ( this.skipped ) ? "SKIPPED" : "" ),
+			( ( this.node == 0 && this.skipped ) ? "}" : "" )
 		);
 
-		if ( this.node == 0 && !this.skipped ) {
+		if ( this.node == 0 && ! this.skipped ) {
 
 			this.depth += 1;
 			this.formList.push( this.dataOffset + this.length );
@@ -1172,14 +1175,16 @@ Debugger.prototype = {
 
 	closeForms: function () {
 
-		if ( !this.active ) return;
+		if ( ! this.active ) return;
 
-		for ( var i = this.formList.length-1; i >= 0; i-- ) {
+		for ( var i = this.formList.length - 1; i >= 0; i -- ) {
 
-			if ( this.offset >= this.formList[i] ) {
+			if ( this.offset >= this.formList[ i ] ) {
+
 				this.depth -= 1;
-				console.log( "| ".repeat(this.depth) + "}" );
-				this.formList.splice(-1,1);
+				console.log( "| ".repeat( this.depth ) + "}" );
+				this.formList.splice( - 1, 1 );
+
 			}
 
 		}

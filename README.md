@@ -1,4 +1,4 @@
-# LWO Loader Development Repo 
+# LWO Loader Development Repo
 
 Development environment and test models for the [three.js LWOLoader](https://threejs.org/examples/#webgl_loader_lwo).
 
@@ -19,4 +19,4 @@ Licensed under Creative Commons CC0 Public Domain
 
 `npm install` to install development dependencies.
 `npm run build` to build LWOLoader bundled file.
-`npm run test` to build and initialize http-server.
+`npm run dev` to build and initialize http-server.
