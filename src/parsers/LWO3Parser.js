@@ -113,7 +113,6 @@ LWO3Parser.prototype = {
 			case 'FLAG':
 
 			case 'TRNL':
-			case 'GLOS':
 			case 'SHRP':
 			case 'RFOP':
 			case 'RSAN':
